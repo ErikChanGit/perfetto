@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// import * as fs from 'fs';
 import {Draft} from 'immer';
 
 import {assertExists, assertTrue} from '../base/logging';
@@ -139,6 +140,15 @@ export const StateActions = {
   openTraceFromFile(state: StateDraft, args: {file: File}): void {
     clearTraceState(state);
     const id = `${state.nextId++}`;
+    // if (fs.existsSync('/home/erikchan/Erik/Git/perfetto/test/trace_processor/dynamic/connected_flow_data.json')) //判断是否存在此文件
+    // {
+    //     //读取文件内容，并转化为Json对象
+    //     let userBugsJson = JSON.parse(fs.readFileSync("/home/erikchan/Erik/Git/perfetto/test/trace_processor/dynamic/connected_flow_data.json", "utf8"));
+    //     console.log(userBugsJson);
+    //     //获取Json里key为data的数据
+    //     // const data = userBugsJson['data'];
+    //     // return data;
+    // }
     state.engines[id] = {
       id,
       ready: false,

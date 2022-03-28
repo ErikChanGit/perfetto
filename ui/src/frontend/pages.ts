@@ -52,7 +52,7 @@ export function createPage(component: m.Component<PageAttrs>):
   const pageComponent = {
     view({attrs}: m.Vnode<PageAttrs>) {
       const children = [
-        m(Sidebar),
+        // m(Sidebar), // ErikModel
         m(Topbar),
         m(Alerts),
         m(component, attrs),

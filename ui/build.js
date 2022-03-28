@@ -71,6 +71,7 @@ const fs = require('fs');
 const http = require('http');
 const path = require('path');
 const fswatch = require('node-watch');  // Like fs.watch(), but works on Linux.
+const { url } = require('inspector');
 const pjoin = path.join;
 
 const ROOT_DIR = path.dirname(__dirname);  // The repo root.
@@ -225,12 +226,12 @@ async function main() {
   if (cfg.startHttpServer) {
     startServer();
   }
-  if (args.run_unittests) {
-    runTests('jest.unittest.config.js');
-  }
-  if (args.run_integrationtests) {
-    runTests('jest.integrationtest.config.js');
-  }
+  // if (args.run_unittests) {
+  //   runTests('jest.unittest.config.js');
+  // }
+  // if (args.run_integrationtests) {
+  //   runTests('jest.integrationtest.config.js');
+  // }
 }
 
 // -----------
@@ -432,14 +433,16 @@ function genServiceWorkerManifestJson() {
 
 function startServer() {
   console.log(
-      'Starting HTTP server on',
-      `http://${cfg.httpServerListenHost}:${cfg.httpServerListenPort}`);
+    'Starting HTTP server on',
+    `http://${cfg.httpServerListenHost}:${cfg.httpServerListenPort}`); 
+  startResServer();
   http.createServer(function(req, res) {
         console.debug(req.method, req.url);
         let uri = req.url.split('?', 1)[0];
         if (uri.endsWith('/')) {
           uri += 'index.html';
         }
+        // console.log("url: "+url);
 
         if (uri === '/live_reload') {
           // Implements the Server-Side-Events protocol.
@@ -465,7 +468,7 @@ function startServer() {
         if (uri.startsWith('/test/')) {
           absPath = pjoin(ROOT_DIR, uri);
         }
-
+        // console.log("absPath: "+absPath);
         // Don't serve contents outside of the project root (b/221101533).
         if (path.relative(ROOT_DIR, absPath).startsWith('..')) {
           res.writeHead(403);
@@ -500,6 +503,37 @@ function startServer() {
         });
       })
       .listen(cfg.httpServerListenPort, cfg.httpServerListenHost);
+}
+
+function startResServer(){
+  http.createServer((req, res) => {
+    //设置允许跨域的域名，*代表允许任意域名跨域
+    res.setHeader("Access-Control-Allow-Origin","*");
+    //允许的header类型
+    res.setHeader("Access-Control-Allow-Headers","content-type");
+    //跨域允许的请求方式 
+    res.setHeader("Access-Control-Allow-Methods","DELETE,PUT,POST,GET,OPTIONS");
+
+    let url = req.url;
+    console.log(url);
+    // let file = root + url;
+    fs.readFile(url, (err, data) => {
+      if (err) {
+        res.writeHeader(404, {
+          "content-type": "text/html;charset='utf-8'"
+        });
+        res.write('<h1>404 Error</h1><h2>Page not exist</h2>');
+        res.end();
+      } else {
+        res.writeHeader(200, {
+          "content-type": "text/html;charset='utf-8'"
+        })
+        res.write(data)
+        res.end()
+      }
+    })
+  }).listen(8090);
+  console.log('---------服务器已开启--------')
 }
 
 function isDistComplete() {

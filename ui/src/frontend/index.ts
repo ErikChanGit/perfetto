@@ -145,6 +145,8 @@ function setupContentSecurityPolicy() {
     'object-src': ['none'],
     'connect-src': [
       `'self'`,
+      'http://127.0.0.1:*',
+      'https://*.google.com',
       'http://127.0.0.1:9001',  // For trace_processor_shell --httpd.
       'ws://127.0.0.1:9001',    // Ditto, for the websocket RPC.
       'https://www.google-analytics.com',
@@ -288,6 +290,11 @@ function main() {
   if (globals.testing) {
     document.body.classList.add('testing');
   }
+
+  const EXAMPLE_CHROME_TRACE_URL = "http://127.0.0.1:8090/home/erikchan/Erik/Git/perfetto/test/trace_processor/dynamic/connected_flow_data.json";
+  const url = EXAMPLE_CHROME_TRACE_URL;
+  globals.dispatch(Actions.openTraceFromUrl({ url }));
+  // ErikModel index end
 }
 
 
